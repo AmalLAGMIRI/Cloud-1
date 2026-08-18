@@ -1,0 +1,11 @@
+---
+- name: Create nginx directory
+  file:
+    path: /app/srcs/requirements/nginx
+    state: directory
+
+- name: Copy Nginx Dockerfile & config
+  copy:
+    src: .
+    dest: /app/srcs/requirements/nginx
+

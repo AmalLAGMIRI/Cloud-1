@@ -1,0 +1,62 @@
+---
+# Firewall role - Configure UFW firewall
+
+- name: Install UFW
+  apt:
+    name: ufw
+    state: present
+  tags: firewall
+
+- name: Reset UFW to default
+  ufw:
+    state: reset
+  tags: firewall
+
+- name: Set UFW default policies
+  ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+  tags: firewall
+
+- name: Allow SSH (port 22)
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+    comment: 'SSH access'
+  tags: firewall
+
+- name: Allow HTTP (port 80)
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+    comment: 'HTTP access'
+  tags: firewall
+
+- name: Allow HTTPS (port 443)
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+    comment: 'HTTPS access'
+  tags: firewall
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+  tags: firewall
+
+- name: Display UFW status
+  command: ufw status verbose
+  register: ufw_status
+  changed_when: false
+  tags: firewall
+
+- name: Show firewall rules
+  debug:
+    var: ufw_status.stdout_lines
+  tags: firewall

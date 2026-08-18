@@ -1,0 +1,54 @@
+
+---
+- name: Deploy Cloud-1 WordPress Application
+  hosts: cloud_servers
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - role: common
+      tags: [common]
+
+    - role: docker
+      tags: [docker]
+
+    - role: firewall
+      tags: [firewall]
+
+    - role: mariadb
+      tags: [mariadb]
+
+    - role: wordpress
+      tags: [wordpress]
+
+    - role: nginx
+      tags: [nginx]
+
+    - role: application
+      tags: [application]
+
+  post_tasks:
+    - name: Display final status
+      debug:
+        msg:
+          - "========================================="
+          - "Deployment Summary"
+          - "========================================="
+          - "Status: SUCCESS ✓"
+          - "WordPress: https://localhost:443"
+          - "PHPMyAdmin: https://localhost:8080/phpmyadmin"
+      tags: always
+
+  
+
+    - name: Show running containers
+      command: docker ps
+      register: docker_ps
+      changed_when: false
+      tags: always
+
+    - name: Display container information
+      debug:
+        var: docker_ps.stdout_lines
+      tags: always
+

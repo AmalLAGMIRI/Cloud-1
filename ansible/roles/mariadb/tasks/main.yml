@@ -1,0 +1,10 @@
+---
+- name: Create mariadb directory
+  file:
+    path: /app/srcs/requirements/mariadb
+    state: directory
+
+- name: Copy MariaDB Dockerfile & script
+  copy:
+    src: .
+    dest: /app/srcs/requirements/mariadb/

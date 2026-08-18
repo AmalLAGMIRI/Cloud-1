@@ -1,0 +1,157 @@
+
+services:
+  db:
+    image: db
+    pull_policy: never
+    build: ./requirements/mariadb
+    restart: always
+    container_name: mariadb
+    env_file:
+      - .env
+    volumes:
+      - mariadb:/var/lib/mysql
+    networks:
+      - my-net
+
+  wordpress:
+    image: wordpress
+    pull_policy: never
+    build: ./requirements/wordpress
+    restart: always
+    container_name: wordpress
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - my-net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - my-net
+
+  nginx:
+    image: nginx
+    pull_policy: never
+    build: ./requirements/nginx
+    restart: always
+    container_name: nginx
+    env_file:
+      - .env
+    depends_on:
+      - wordpress
+      - phpmyadmin
+    ports:
+       - "443:443"
+       - "80:80"
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - my-net
+
+networks:
+  my-net:
+    name: inception-network
+
+volumes:
+  wordpress:
+    name: wordpress
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/data/wp'
+  mariadb:
+    name: mariadb
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/data/db'
+
+
+
+
+# services:
+#   db:
+#     image: db
+#     pull_policy: never
+#     build: ./requirements/mariadb
+#     restart: always
+#     container_name: mariadb
+#     env_file:
+#       - .env
+#     volumes:
+#      - mariadb:/var/lib/mysql
+#     networks:
+#       - my-net
+#   wordpress:
+#     image: wordpress
+#     pull_policy: never
+#     build: ./requirements/wordpress
+#     restart: always
+#     container_name: wordpress
+#     env_file:
+#       - .env
+#     networks:
+#       - my-net
+#     depends_on:
+#       - db
+#     volumes:
+#       - wordpress:/var/www/html
+
+#     phpmyadmin:
+#     image: phpmyadmin/phpmyadmin
+#     container_name: phpmyadmin
+#     restart: always
+#     networks:
+#       - my-net
+#     depends_on:
+#       - db
+
+#   nginx:
+#     image: nginx
+#     pull_policy: never
+#     build: ./requirements/nginx
+#     restart: always
+#     container_name: nginx
+#     env_file:
+#       .env
+#     networks:
+#       - my-net
+#     volumes:
+#       - wordpress:/var/www/html
+#     ports:
+#       - "443:443"
+#     depends_on:
+#       - wordpress
+#       - phpmyadmin
+
+# networks:
+#   my-net:
+#     name: inception-network
+  
+# volumes:
+#   wordpress:
+#     name: wordpress
+#     driver: local
+#     driver_opts:
+#       type: 'none'
+#       o: 'bind'
+#       device: '/data/wp'
+#   mariadb:
+#     name: mariadb
+#     driver: local
+#     driver_opts:
+#       type: 'none'
+#       o: 'bind'
+#       device: '/data/db'

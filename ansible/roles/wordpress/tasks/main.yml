@@ -1,0 +1,11 @@
+---
+- name: Create wordpress directory
+  file:
+    path: /app/srcs/requirements/wordpress
+    state: directory
+
+- name: Copy WordPress Dockerfile & script
+  copy:
+    src: .
+    dest: /app/srcs/requirements/wordpress/
+

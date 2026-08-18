@@ -1,0 +1,40 @@
+server {
+    # listen 443;
+    listen 443 ssl;
+    
+#    server_name alagmiri.42.fr;
+
+    root /var/www/html/;
+
+    ssl_certificate /etc/ssl/certs/localhost.crt;
+    ssl_certificate_key /etc/ssl/private/localhost.key;
+
+    ssl_protocols TLSv1.2 ;
+
+    index index.php;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_pass wordpress:9000;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ^~ /phpmyadmin/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        
+        # This must match the service name in docker-compose
+        proxy_pass http://phpmyadmin:80/; 
+    }
+}
+
+server {
+    listen 80 default_server;
+
+    server_name alagmiri.42.fr;
+
+    return 301 https://$host$request_uri;
+}

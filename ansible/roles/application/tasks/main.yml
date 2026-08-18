@@ -1,0 +1,68 @@
+# ---
+# - name: Create srcs directory
+#   file:
+#     path: /app/srcs
+#     state: directory
+#     mode: '0755'
+
+# - name: Create volumes directory
+#   file:
+#     path: /data
+#     state: directory
+#     mode: '0755'
+
+# - name: Copy env and docker compose
+#   copy:
+#     src: .
+#     dest: /app/srcs
+
+# - name: Run Docker Compose (build and start containers)
+#   command: docker compose up --build -d
+#   args:
+#     chdir: /app/srcs
+
+
+
+---
+- name: Create srcs directory
+  file:
+    path: /app/srcs
+    state: directory
+    mode: '0755'
+
+- name: Create volumes directory
+  file:
+    path: /data/wp
+    state: directory
+    mode: '0755'
+
+- name: Create volumes directory
+  file:
+    path: /data/db
+    state: directory
+    mode: '0755'
+
+- name: Copy env and docker compose
+  copy:
+    src: .
+    dest: /app/srcs
+  # Consider using synchronize or rsync for better performance:
+  # synchronize:
+  #   src: .
+  #   dest: /app/srcs
+  #   rsync_opts:
+  #     - "--exclude=.git"
+
+- name: Run Docker Compose (build and start containers)
+  command: docker compose up --build -d
+  args:
+    chdir: /app/srcs
+  register: compose_output
+  changed_when: true
+  async: 600  # 10 minutes timeout
+  poll: 10    # Check every 10 seconds
+
+- name: Show Docker Compose output
+  debug:
+    var: compose_output
+  when: compose_output is defined

@@ -1,0 +1,65 @@
+---
+
+- name: Remove conflicting Docker list files
+  become: true
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/docker.list
+    - /etc/apt/sources.list.d/archive_uri-https_download_docker_com_linux_ubuntu-noble.list
+
+- name: Ensure the keyring directory exists
+  become: true
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+    
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: common
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+    autoremove: yes
+    autoclean: yes
+  tags: common
+
+- name: Install common packages
+  apt:
+    name:
+      - python3-pip
+      - netcat-openbsd
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: yes
+  tags: common
+    # name:
+      # - curl
+      # - wget
+      # - git
+      # - vim
+      # - htop
+      # - ca-certificates
+      # - gnupg
+      # - lsb-release
+      # - python3-pip
+      # - netcat
+   
+
+- name: Ensure locale is set
+  locale_gen:
+    name: en_US.UTF-8
+    state: present
+  tags: common
+
+- name: Set timezone
+  timezone:
+    name: UTC
+  tags: common
